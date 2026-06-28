@@ -1,3 +1,7 @@
+## 1.0.2
+
+* 📸 Changed README screenshot paths to absolute raw GitHub URLs for pub.dev compatibility
+
 ## 1.0.1
 
 * 📸 Updated README with new screenshots under the Demo section
