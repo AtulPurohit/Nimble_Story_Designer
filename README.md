@@ -10,14 +10,12 @@ A fully-featured, premium, and backend-agnostic Flutter package for Instagram-st
 
 ## 📸 Demo
 
-> [!TIP]
-> Add your screenshots or GIFs here to make your repository stand out! 
-> You can place your demo media in a `screenshots/` directory.
-
 <p align="center">
-  <img src="screenshots/creator_demo.gif" width="250" alt="Story Creator Demo" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/viewer_demo.gif" width="250" alt="Story Viewer Demo" />
+  <img src="screenshoots/Nimble%202.jpeg" width="160" alt="Nimble 2" />
+  <img src="screenshoots/Nimble%203.jpeg" width="160" alt="Nimble 3" />
+  <img src="screenshoots/Nimble%205.jpeg" width="160" alt="Nimble 5" />
+  <img src="screenshoots/Nimble%207.jpeg" width="160" alt="Nimble 7" />
+  <img src="screenshoots/Nimble%208.jpeg" width="160" alt="Nimble 8" />
 </p>
 
 ---

@@ -1,3 +1,8 @@
+## 1.0.1
+
+* 📸 Updated README with new screenshots under the Demo section
+* 🧹 Removed legacy book card assets and configurations
+
 ## 1.0.0
 
 * 🎉 Initial release of `nimble_story_designer`
