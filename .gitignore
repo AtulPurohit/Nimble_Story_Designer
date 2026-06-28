@@ -1,0 +1,21 @@
+# https://dart.dev/guides/libraries/private-files
+
+# Files and directories created by pub
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+.pub-cache/
+.pub/
+/build/
+
+# Symbol link to the SDK
+packages
+
+# Avoid committing generated/temporary files
+*.log
+*.lock
+*.spec
+*.pyc
+__pycache__/
