@@ -1,3 +1,7 @@
+## 1.0.3
+
+* 📸 Renamed screenshot filenames to use underscores (e.g. Nimble_1.jpeg) and updated README links
+
 ## 1.0.2
 
 * 📸 Changed README screenshot paths to absolute raw GitHub URLs for pub.dev compatibility

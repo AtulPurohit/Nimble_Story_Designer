@@ -11,11 +11,11 @@ A fully-featured, premium, and backend-agnostic Flutter package for Instagram-st
 ## 📸 Demo
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble%202.jpeg" width="160" alt="Nimble 2" />
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble%203.jpeg" width="160" alt="Nimble 3" />
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble%205.jpeg" width="160" alt="Nimble 5" />
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble%207.jpeg" width="160" alt="Nimble 7" />
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble%208.jpeg" width="160" alt="Nimble 8" />
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_2.jpeg" width="160" alt="Nimble 2" />
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_3.jpeg" width="160" alt="Nimble 3" />
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_5.jpeg" width="160" alt="Nimble 5" />
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_7.jpeg" width="160" alt="Nimble 7" />
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_8.jpeg" width="160" alt="Nimble 8" />
 </p>
 
 ---
