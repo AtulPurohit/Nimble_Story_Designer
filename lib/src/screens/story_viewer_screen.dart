@@ -51,6 +51,7 @@ class StoryViewerScreen extends StatefulWidget {
   final dynamic Function(String userId)? onUserTap;
   final dynamic Function(String bookId)? onBookTap;
   final dynamic Function(String storyId, String category, String message)? onReportStory;
+  final String Function(StoryPost story, StoryGroup group)? onBuildShareText;
 
   const StoryViewerScreen({
     super.key,
@@ -62,6 +63,7 @@ class StoryViewerScreen extends StatefulWidget {
     this.onUserTap,
     this.onBookTap,
     this.onReportStory,
+    this.onBuildShareText,
   });
 
   @override
@@ -217,6 +219,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
             onUserTap: widget.onUserTap,
             onBookTap: widget.onBookTap,
             onReportStory: widget.onReportStory,
+            onBuildShareText: widget.onBuildShareText,
           );
 
           // Apply 3D Cube Rotation Effect
@@ -253,6 +256,7 @@ class StoryPlayer extends StatefulWidget {
   final dynamic Function(String userId)? onUserTap;
   final dynamic Function(String bookId)? onBookTap;
   final dynamic Function(String storyId, String category, String message)? onReportStory;
+  final String Function(StoryPost story, StoryGroup group)? onBuildShareText;
 
   const StoryPlayer({
     super.key,
@@ -266,6 +270,7 @@ class StoryPlayer extends StatefulWidget {
     this.onUserTap,
     this.onBookTap,
     this.onReportStory,
+    this.onBuildShareText,
     this.initialIndex = 0,
   });
 
@@ -1694,13 +1699,15 @@ class _StoryPlayerState extends State<StoryPlayer>
 
   void _shareGeneral(StoryPost nimble) {
     _pauseStory();
-    final text = 'Check out this Nimble post by ${widget.group.userName} on Storito! \n\nhttps://storito.in/nimble/${nimble.id}';
+    final text = widget.onBuildShareText?.call(nimble, widget.group) ??
+        'Check out this story by ${widget.group.userName}! \n\n${nimble.url ?? ""}';
     Share.share(text).then((_) => _resumeStory());
   }
 
   void _shareOnWhatsApp(StoryPost nimble) async {
     _pauseStory();
-    final text = 'Check out this Nimble post by ${widget.group.userName} on Storito! \n\nhttps://storito.in/nimble/${nimble.id}';
+    final text = widget.onBuildShareText?.call(nimble, widget.group) ??
+        'Check out this story by ${widget.group.userName}! \n\n${nimble.url ?? ""}';
     final url = 'https://api.whatsapp.com/send?text=${Uri.encodeComponent(text)}';
     final uri = Uri.parse(url);
     try {

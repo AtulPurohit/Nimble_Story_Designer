@@ -1664,7 +1664,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
         final cover = bookCache?['coverUrl'] ?? (data['bookCoverUrl'] as String?) ?? '';
         final genre = bookCache?['genre'] ?? (data['bookGenre'] as String?) ?? '';
         final summary = bookCache?['description'] ?? (data['bookDescription'] as String?) ?? (data['description'] as String?) ?? '';
-        final authorName = bookCache?['author'] ?? (data['authorName'] as String?) ?? (data['userName'] as String?) ?? 'Storito Author';
+        final authorName = bookCache?['author'] ?? (data['authorName'] as String?) ?? (data['userName'] as String?) ?? 'Story Author';
         final authorAvatarUrl = bookCache?['authorAvatarUrl'] ?? (data['authorAvatarUrl'] as String?) ?? (data['userAvatarUrl'] as String?) ?? '';
         final authorIsVerified = bookCache?['authorIsVerified'] == true || data['authorIsVerified'] == true || data['userIsVerified'] == true;
         
