@@ -16,8 +16,6 @@ import 'package:gal/gal.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../controllers/story_controller.dart';
-import '../models/story_post.dart';
-import '../models/story_group.dart';
 import '../models/story_reactions.dart';
 import '../utils/image_helper.dart';
 import '../theme/story_theme.dart';
