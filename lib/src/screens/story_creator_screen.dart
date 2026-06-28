@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'dart:async';
-import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoDatePicker, CupertinoDatePickerMode, CupertinoTheme, CupertinoThemeData;
 import 'package:flutter/services.dart';
@@ -18,7 +18,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../controllers/story_controller.dart';
 import '../models/story_reactions.dart';
 import '../utils/image_helper.dart';
-import '../theme/story_theme.dart';
+
 
 enum OverlayType { text, image, profileCard, emoji, mention, poll, link, countdown, question, sticker }
 
@@ -471,7 +471,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
   void _updateGradientFromDecodedImage(img.Image decodedImage) {
     // Sample a 5x5 grid across the book cover image, avoiding extreme outer borders
     final List<Color> sampledColors = [];
-    final int gridCount = 5;
+    const int gridCount = 5;
     for (int y = 1; y < gridCount; y++) {
       for (int x = 1; x < gridCount; x++) {
         final px = (decodedImage.width * (x / gridCount)).toInt();
@@ -2054,13 +2054,6 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
         final textColor = isWhite ? Colors.black87 : Colors.white;
         final inputBgColor = isWhite ? const Color(0xFFF2F2F7) : Colors.white.withOpacity(0.18);
 
-        final user = null;
-    final currentUserId = widget.ownUserId ?? '';
-    final currentUserName = widget.ownUserName ?? 'User';
-    final currentUserUsername = widget.ownUserUsername ?? 'username';
-    final currentUserAvatar = widget.ownUserAvatar ?? '';
-    final isPremium = widget.isPremium;
-
         return Container(
           width: 220,
           decoration: BoxDecoration(
@@ -2074,11 +2067,11 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
               const SizedBox(height: 18),
               CircleAvatar(
                 radius: 18,
-                backgroundImage: (currentUserAvatar != null && currentUserAvatar.isNotEmpty)
-                    ? NetworkImage(user.avatarUrl)
+                backgroundImage: (widget.ownUserAvatar != null && (widget.ownUserAvatar ?? '').isNotEmpty)
+                    ? NetworkImage(widget.ownUserAvatar!)
                     : null,
-                child: (currentUserAvatar == null || currentUserAvatar.isEmpty)
-                    ? Text((currentUserName != null && currentUserName.isNotEmpty) ? currentUserName.substring(0, 1).toUpperCase() : 'U',
+                child: ((widget.ownUserAvatar ?? '').isEmpty)
+                    ? Text(((widget.ownUserName ?? '').isNotEmpty) ? widget.ownUserName![0].toUpperCase() : 'U',
                         style: const TextStyle(fontSize: 12, color: Colors.white))
                     : null,
               ),
@@ -2493,23 +2486,6 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
 
   Widget _buildMentionSuggestions() {
     final suggestions = [];
-    final loading = false;
-
-    if (loading) {
-      return Container(
-        margin: const EdgeInsets.only(top: 8),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.black87,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const SizedBox(
-          width: 14,
-          height: 14,
-          child: CircularProgressIndicator(strokeWidth: 1.5, valueColor: AlwaysStoppedAnimation(Colors.white)),
-        ),
-      );
-    }
 
     if (suggestions.isEmpty) return const SizedBox();
 
@@ -2543,7 +2519,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
               final lastAt = beforeCursor.lastIndexOf('@');
               final afterCursor = text.substring(selection.baseOffset);
 
-              final newBefore = beforeCursor.substring(0, lastAt) + '@${user.username} ';
+              final newBefore = '${beforeCursor.substring(0, lastAt)}@${user.username} ';
               _editorController.text = newBefore + afterCursor;
               _editorController.selection = TextSelection.collapsed(offset: newBefore.length);
 
@@ -2602,12 +2578,8 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
   }
 
   Widget _buildPostButton() {
-    final user = null;
-    final currentUserId = widget.ownUserId ?? '';
     final currentUserName = widget.ownUserName ?? 'User';
-    final currentUserUsername = widget.ownUserUsername ?? 'username';
     final currentUserAvatar = widget.ownUserAvatar ?? '';
-    final isPremium = widget.isPremium;
     return GestureDetector(
       onTap: _postNimble,
       child: Container(
@@ -2627,11 +2599,11 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
           children: [
             CircleAvatar(
               radius: 11,
-              backgroundImage: (currentUserAvatar != null && currentUserAvatar.isNotEmpty)
-                  ? NetworkImage(user.avatarUrl)
+              backgroundImage: currentUserAvatar.isNotEmpty
+                  ? NetworkImage(currentUserAvatar)
                   : null,
-              child: (currentUserAvatar == null || currentUserAvatar.isEmpty)
-                  ? Text((currentUserName != null && currentUserName.isNotEmpty) ? currentUserName.substring(0, 1).toUpperCase() : 'U',
+              child: currentUserAvatar.isEmpty
+                  ? Text(currentUserName.isNotEmpty ? currentUserName.substring(0, 1).toUpperCase() : 'U',
                       style: const TextStyle(fontSize: 9, color: Colors.white))
                   : null,
             ),
@@ -2740,13 +2712,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
                                     isPro: true,
                                     onTap: () {
                                       Navigator.pop(context);
-                                      final user = null;
-                                      final currentUserId = widget.ownUserId ?? '';
-                                      final currentUserName = widget.ownUserName ?? 'User';
-                                      final currentUserUsername = widget.ownUserUsername ?? 'username';
-                                      final currentUserAvatar = widget.ownUserAvatar ?? '';
-                                      final isPremium = widget.isPremium;
-                                      if (isPremium == true) {
+                                      if (widget.isPremium == true) {
                                         _showPollConfigDialog();
                                       } else {
                                         _showPremiumModal();
@@ -2760,13 +2726,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
                                     isPro: true,
                                     onTap: () {
                                       Navigator.pop(context);
-                                      final user = null;
-                                      final currentUserId = widget.ownUserId ?? '';
-                                      final currentUserName = widget.ownUserName ?? 'User';
-                                      final currentUserUsername = widget.ownUserUsername ?? 'username';
-                                      final currentUserAvatar = widget.ownUserAvatar ?? '';
-                                      final isPremium = widget.isPremium;
-                                      if (isPremium == true) {
+                                      if (widget.isPremium == true) {
                                         _showLinkConfigDialog();
                                       } else {
                                         _showPremiumModal();
@@ -2780,13 +2740,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
                                     isPro: true,
                                     onTap: () {
                                       Navigator.pop(context);
-                                      final user = null;
-                                      final currentUserId = widget.ownUserId ?? '';
-                                      final currentUserName = widget.ownUserName ?? 'User';
-                                      final currentUserUsername = widget.ownUserUsername ?? 'username';
-                                      final currentUserAvatar = widget.ownUserAvatar ?? '';
-                                      final isPremium = widget.isPremium;
-                                      if (isPremium == true) {
+                                      if (widget.isPremium == true) {
                                         _showCountdownConfigDialog();
                                       } else {
                                         _showPremiumModal();
@@ -2800,13 +2754,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
                                     isPro: true,
                                     onTap: () {
                                       Navigator.pop(context);
-                                      final user = null;
-                                      final currentUserId = widget.ownUserId ?? '';
-                                      final currentUserName = widget.ownUserName ?? 'User';
-                                      final currentUserUsername = widget.ownUserUsername ?? 'username';
-                                      final currentUserAvatar = widget.ownUserAvatar ?? '';
-                                      final isPremium = widget.isPremium;
-                                      if (isPremium == true) {
+                                      if (widget.isPremium == true) {
                                         _showQuestionConfigDialog();
                                       } else {
                                         _showPremiumModal();
@@ -4009,7 +3957,6 @@ class _LinkDialogContent extends StatefulWidget {
   final Function(String url, String title, String style) onSave;
 
   const _LinkDialogContent({
-    super.key,
     this.overlay,
     this.onCancel,
     required this.onSave,
@@ -4242,7 +4189,6 @@ class _CountdownDialogContent extends StatefulWidget {
   final Function(DateTime targetTime, String name, String style) onSave;
 
   const _CountdownDialogContent({
-    super.key,
     this.overlay,
     this.onCancel,
     required this.onSave,
@@ -4618,7 +4564,6 @@ class _PollDialogContent extends StatefulWidget {
   final Function(String question, List<String> options, String style) onSave;
 
   const _PollDialogContent({
-    super.key,
     this.overlay,
     required this.onSave,
   });
@@ -4913,7 +4858,6 @@ class _QuestionDialogContent extends StatefulWidget {
   final String? ownUserAvatar;
 
   const _QuestionDialogContent({
-    super.key,
     this.overlay,
     required this.onSave,
     this.ownUserName,

@@ -1,3 +1,12 @@
+## 1.0.4
+
+* 🧹 Removed 6 unused imports (unused_import)
+* 🧹 Removed 10+ unused local variables (unused_local_variable)
+* 🧹 Fixed dead code block in mention suggestions (dead_code)
+* 🛠 Fixed final_not_initialized_constructor in 2 dialog widgets
+* ✅ Applied 30 auto-fixes via `dart fix` (prefer_const, unnecessary_null_comparison, etc.)
+* ⬆️ Pass static analysis score significantly improved
+
 ## 1.0.3
 
 * 📸 Renamed screenshot filenames to use underscores (e.g. Nimble_1.jpeg) and updated README links

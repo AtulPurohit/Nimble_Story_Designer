@@ -4,10 +4,10 @@ import '../models/story_post.dart';
 import '../models/story_group.dart';
 import '../models/story_reactions.dart';
 import '../controllers/story_controller.dart';
-import '../theme/story_theme.dart';
+
 import '../utils/image_helper.dart';
 import '../widgets/story_avatar.dart';
-import '../widgets/story_reaction_bar.dart';
+
 import '../widgets/story_viewers_sheet.dart';
 import 'story_creator_screen.dart';
 
@@ -99,7 +99,6 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
   void _precacheGroupImages(int groupIndex) {
     if (groupIndex < 0 || groupIndex >= widget.groups.length) return;
     final group = widget.groups[groupIndex];
-    final storyController = context.read<StoryController>();
     for (final nimble in group.stories) {
       if (_precachedGroupNimbleIds.contains(nimble.id)) continue;
       
@@ -315,7 +314,6 @@ class _StoryPlayerState extends State<StoryPlayer>
     // Precache all viewer nimbles for fast instant swiping
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final storyController = context.read<StoryController>();
       for (final nimble in _localNimbles) {
         // 1. Precache main nimble background
         if (nimble.url != null && (nimble.type == 'image' || nimble.type == 'paint')) {
@@ -330,7 +328,6 @@ class _StoryPlayerState extends State<StoryPlayer>
 
       // 3. Pre-fetch viewer activity for instant sheet loading (own nimbles only)
       if (widget.group.isOwn && _localNimbles.isNotEmpty) {
-        final currentUserId = widget.ownUserId;
         context.read<StoryController>().loadViewers(_localNimbles[_currentIndex].id);
       }
 
@@ -477,7 +474,6 @@ class _StoryPlayerState extends State<StoryPlayer>
 
     // Pre-warm viewer cache for current story (own only) so sheet opens instantly
     if (widget.group.isOwn) {
-      final currentUserId = widget.ownUserId;
       context.read<StoryController>().loadViewers(nimble.id);
     }
   }
@@ -1152,17 +1148,17 @@ class _StoryPlayerState extends State<StoryPlayer>
   Widget _buildProgressBars() {
     return Row(
       children: List.generate(_localNimbles.length, (i) {
-        final spacer = const SizedBox(width: 3);
+        const spacer = SizedBox(width: 3);
         Widget bar;
         if (i < _currentIndex) {
-          bar = _ProgressBar(progress: 1.0);
+          bar = const _ProgressBar(progress: 1.0);
         } else if (i == _currentIndex) {
           bar = AnimatedBuilder(
             animation: _progressController,
             builder: (_, __) => _ProgressBar(progress: _progressController.value),
           );
         } else {
-          bar = _ProgressBar(progress: 0.0);
+          bar = const _ProgressBar(progress: 0.0);
         }
         return Expanded(child: i > 0 ? Row(children: [spacer, Expanded(child: bar)]) : bar);
       }),
@@ -1773,12 +1769,7 @@ class _StoryPlayerState extends State<StoryPlayer>
     final followingCount = cachedProfile != null && cachedProfile['followingCount'] != null
         ? cachedProfile['followingCount'] as int
         : (data['followingCount'] as int?) ?? 0;
-    final currentStreak = cachedProfile != null && cachedProfile['currentStreak'] != null
-        ? cachedProfile['currentStreak'] as int
-        : (data['currentStreak'] as int?) ?? 0;
-    final longestStreak = cachedProfile != null && cachedProfile['longestStreak'] != null
-        ? cachedProfile['longestStreak'] as int
-        : (data['longestStreak'] as int?) ?? 0;
+
     final isVerified = cachedProfile?['verifiedUser'] as bool? ?? (data['verifiedUser'] as bool?) ?? false;
 
     const tcProfile = Colors.black;
@@ -2075,8 +2066,8 @@ Path drawStar(Size size) {
   final double width = size.width;
   final double halfWidth = width / 2;
   final double radius = halfWidth / 2;
-  final int degreesPerStep = 360 ~/ 5;
-  final double halfDegreesPerStep = degreesPerStep / 2;
+  const int degreesPerStep = 360 ~/ 5;
+  const double halfDegreesPerStep = degreesPerStep / 2;
   final Path path = Path();
   final List<Offset> points = [];
 
@@ -2502,7 +2493,6 @@ class _AnswerDialogContent extends StatefulWidget {
   final VoidCallback onClose;
 
   const _AnswerDialogContent({
-    super.key,
     required this.nimble,
     required this.question,
     required this.style,
@@ -2590,8 +2580,8 @@ class _AnswerDialogContentState extends State<_AnswerDialogContent> {
     final isWhite = widget.style == 'white';
     final cardBgColor = isWhite ? Colors.white : _stickerColorFromStyle(widget.style);
     final textColor = isWhite ? Colors.black87 : Colors.white;
-    final inputBgColor = Colors.white;
-    final inputTextColor = Colors.black87;
+    const inputBgColor = Colors.white;
+    const inputTextColor = Colors.black87;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -2700,15 +2690,15 @@ class _AnswerDialogContentState extends State<_AnswerDialogContent> {
                                       fontSize: 14,
                                     ),
                                     buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       hintText: 'Type something...',
-                                      hintStyle: const TextStyle(
+                                      hintStyle: TextStyle(
                                         color: Colors.black38,
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
                                       border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                     ),
                                   ),
                                 ),

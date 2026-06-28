@@ -136,7 +136,7 @@ class _StoryAvatarItemState extends State<StoryAvatarItem> with SingleTickerProv
             AnimatedBuilder(
               animation: _rotationController,
               builder: (_, __) => CustomPaint(
-                size: Size(totalSize, totalSize),
+                size: const Size(totalSize, totalSize),
                 painter: _GradientRingPainter(
                   colors: uploadColors,
                   strokeWidth: ringStroke,
@@ -167,7 +167,7 @@ class _StoryAvatarItemState extends State<StoryAvatarItem> with SingleTickerProv
           alignment: Alignment.center,
           children: [
             CustomPaint(
-              size: Size(totalSize, totalSize),
+              size: const Size(totalSize, totalSize),
               painter: _DashedCirclePainter(
                 color: Colors.grey.withValues(alpha: 0.4),
                 strokeWidth: ringStroke,
@@ -225,7 +225,7 @@ class _StoryAvatarItemState extends State<StoryAvatarItem> with SingleTickerProv
         alignment: Alignment.center,
         children: [
           CustomPaint(
-            size: Size(totalSize, totalSize),
+            size: const Size(totalSize, totalSize),
             painter: _GradientRingPainter(
               colors: gradientColors,
               strokeWidth: ringStroke,
@@ -401,7 +401,7 @@ class _DashedCirclePainter extends CustomPainter {
 
     for (int i = 0; i < dashCount; i++) {
       final startAngle = i * dashAngle;
-      final sweepAngle = dashAngle * (1 - gapFraction);
+      const sweepAngle = dashAngle * (1 - gapFraction);
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle,
