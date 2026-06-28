@@ -20,7 +20,7 @@ import '../models/story_reactions.dart';
 import '../utils/image_helper.dart';
 import '../theme/story_theme.dart';
 
-enum OverlayType { text, image, bookCard, profileCard, emoji, mention, poll, link, countdown, question, sticker }
+enum OverlayType { text, image, profileCard, emoji, mention, poll, link, countdown, question, sticker }
 
 enum TextBackgroundStyle {
   none,
@@ -90,7 +90,6 @@ class DrawPath {
 //  Main Screen Widget 
 
 class StoryCreatorScreen extends StatefulWidget {
-  final Map<String, dynamic>? bookCardData;
   final Map<String, dynamic>? profileCardData;
   final String? ownUserId;
   final String? ownUserName;
@@ -100,15 +99,12 @@ class StoryCreatorScreen extends StatefulWidget {
   final VoidCallback? onUpgradeRequest;
   
   // Custom search callbacks for decoupled stickering
-  final Future<List<Map<String, dynamic>>> Function(String)? onSearchBooks;
   final Future<List<Map<String, dynamic>>> Function(String)? onSearchProfiles;
   final Future<List<Map<String, dynamic>>> Function(String)? onSearchUsers;
-  final Future<List<Map<String, dynamic>>> Function()? onGetInitialBooks;
   final Future<List<Map<String, dynamic>>> Function()? onGetInitialProfiles;
 
   const StoryCreatorScreen({
     super.key,
-    this.bookCardData,
     this.profileCardData,
     this.ownUserId,
     this.ownUserName,
@@ -116,10 +112,8 @@ class StoryCreatorScreen extends StatefulWidget {
     this.ownUserAvatar,
     this.isPremium = true,
     this.onUpgradeRequest,
-    this.onSearchBooks,
     this.onSearchProfiles,
     this.onSearchUsers,
-    this.onGetInitialBooks,
     this.onGetInitialProfiles,
   });
 
@@ -356,17 +350,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final center = _getCanvasCenter();
 
-      if (widget.bookCardData != null) {
-        setState(() {
-          _overlays.add(StoryOverlay(
-            id: 'init_book_${DateTime.now().millisecondsSinceEpoch}',
-            type: OverlayType.bookCard,
-            position: center,
-            cardData: widget.bookCardData,
-          ));
-        });
-        _extractColorsFromBookData(widget.bookCardData);
-      } else if (widget.profileCardData != null) {
+      if (widget.profileCardData != null) {
         setState(() {
           _overlays.add(StoryOverlay(
             id: 'init_profile_${DateTime.now().millisecondsSinceEpoch}',
@@ -482,33 +466,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
     }
   }
 
-  void _extractColorsFromBookData(Map<String, dynamic>? cardData) {
-    if (cardData == null) return;
-    final coverUrl = (cardData['bookCoverUrl'] ?? cardData['coverUrl'])?.toString() ?? '';
-    if (coverUrl.isNotEmpty) {
-      _extractColorsFromUrl(coverUrl);
-    }
-  }
 
-  Future<void> _extractColorsFromUrl(String url) async {
-    if (url.isEmpty) return;
-    final sanitizedUrl = ImageHelper.cleanLocalPath(url);
-    if (sanitizedUrl.isEmpty) return;
-    try {
-      final client = HttpClient();
-      final request = await client.getUrl(Uri.parse(sanitizedUrl));
-      final response = await request.close();
-      if (response.statusCode != 200) return;
-
-      final bytes = await response.fold<List<int>>([], (a, b) => a..addAll(b));
-      final fileBytes = Uint8List.fromList(bytes);
-      final decodedImage = img.decodeImage(fileBytes);
-      if (decodedImage == null) return;
-      _updateGradientFromDecodedImage(decodedImage);
-    } catch (e) {
-      debugPrint('[NimbleCreator._extractColorsFromUrl] Error: $e');
-    }
-  }
 
   void _updateGradientFromDecodedImage(img.Image decodedImage) {
     // Sample a 5x5 grid across the book cover image, avoiding extreme outer borders
@@ -702,7 +660,6 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
     // Capture interactive tags metadata if any
     Map<String, dynamic> customData = {};
     final interactive = _overlays.where((o) => 
-      o.type == OverlayType.bookCard || 
       o.type == OverlayType.profileCard || 
       o.type == OverlayType.mention ||
       o.type == OverlayType.poll ||
@@ -712,9 +669,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
     );
     if (interactive.isNotEmpty) {
       final first = interactive.first;
-      if (first.type == OverlayType.bookCard && first.cardData != null) {
-        customData['bookId'] = first.cardData!['bookId'];
-      } else if (first.type == OverlayType.profileCard && first.cardData != null) {
+      if (first.type == OverlayType.profileCard && first.cardData != null) {
         customData['userId'] = first.cardData!['userId'];
       } else if (first.type == OverlayType.mention && first.cardData != null) {
         customData['userId'] = first.cardData!['userId'];
@@ -727,8 +682,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
     final canvasH = renderBox?.size.height ?? MediaQuery.of(context).size.height;
     List<Map<String, dynamic>> serializedOverlays = [];
     for (final overlay in _overlays) {
-      if (overlay.type == OverlayType.bookCard ||
-          overlay.type == OverlayType.profileCard ||
+      if (overlay.type == OverlayType.profileCard ||
           overlay.type == OverlayType.mention ||
           overlay.type == OverlayType.poll ||
           overlay.type == OverlayType.link ||
@@ -1464,8 +1418,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
           _showEditQuestionDialog(overlay);
         } else if (overlay.type == OverlayType.link) {
           _showEditLinkDialog(overlay);
-        } else if (overlay.type == OverlayType.mention ||
-            overlay.type == OverlayType.bookCard) {
+        } else if (overlay.type == OverlayType.mention) {
           _cycleOverlayStyle(overlay);
         }
       },
@@ -1649,226 +1602,6 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
           fit: BoxFit.contain,
         );
 
-      case OverlayType.bookCard:
-        final data = overlay.cardData ?? {};
-        final bookId = data['bookId']?.toString() ?? '';
-        
-        // Resolve detailed book object from provider if available
-        final storyController = context.read<StoryController>();
-        if (bookId.isNotEmpty) { storyController.fetchBookProfile(bookId); }
-        final bookCache = storyController.getCachedBook(bookId);
-
-        final title = bookCache?['title'] ?? (data['bookTitle'] as String?) ?? 'Untitled';
-        final cover = bookCache?['coverUrl'] ?? (data['bookCoverUrl'] as String?) ?? '';
-        final genre = bookCache?['genre'] ?? (data['bookGenre'] as String?) ?? '';
-        final summary = bookCache?['description'] ?? (data['bookDescription'] as String?) ?? (data['description'] as String?) ?? '';
-        final authorName = bookCache?['author'] ?? (data['authorName'] as String?) ?? (data['userName'] as String?) ?? 'Story Author';
-        final authorAvatarUrl = bookCache?['authorAvatarUrl'] ?? (data['authorAvatarUrl'] as String?) ?? (data['userAvatarUrl'] as String?) ?? '';
-        final authorIsVerified = bookCache?['authorIsVerified'] == true || data['authorIsVerified'] == true || data['userIsVerified'] == true;
-        
-        final totalReads = bookCache?['formattedTotalReads'] ?? (data['formattedTotalReads'] as String?) ?? (data['totalReads']?.toString()) ?? '65';
-        final totalChapters = bookCache?['effectiveTotalChapters'] ?? int.tryParse(data['totalChapters']?.toString() ?? '') ?? 13;
-        final rating = bookCache?['rating'] ?? double.tryParse(data['rating']?.toString() ?? '') ?? 5.0;
-
-        Widget buildStatItem(IconData icon, String value) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 12, color: Colors.grey[500]),
-              const SizedBox(width: 4),
-              Text(
-                value,
-                style: GoogleFonts.outfit(
-                  color: Colors.grey[600],
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          );
-        }
-
-        Widget buildStatDivider() {
-          return Container(
-            width: 1,
-            height: 12,
-            color: Colors.black.withOpacity(0.06),
-          );
-        }
-
-        return Container(
-          width: 290,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(
-              color: Colors.black.withOpacity(0.05),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Profile Avatar, Name, Badge
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage: authorAvatarUrl.isNotEmpty ? NetworkImage(authorAvatarUrl) : null,
-                    child: authorAvatarUrl.isEmpty
-                        ? Text(
-                            authorName.isNotEmpty ? authorName[0].toUpperCase() : 'U',
-                            style: GoogleFonts.outfit(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            authorName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                        if (authorIsVerified) ...[
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.verified,
-                            color: Colors.green,
-                            size: 13,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  // Writco tagline removed
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // 2. Cover on Left, Title/Genre/Summary on Right
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Book cover (Left)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: cover.isNotEmpty
-                        ? Image.network(
-                            cover,
-                            width: 60,
-                            height: 85,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              width: 60,
-                              height: 85,
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.book, color: Colors.grey, size: 24),
-                            ),
-                          )
-                        : Container(
-                            width: 60,
-                            height: 85,
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
-                              ),
-                            ),
-                            child: const Icon(Icons.book, color: Colors.white70, size: 24),
-                          ),
-                  ),
-                  const SizedBox(width: 10),
-
-                  // Title, Genre, Summary (Right)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                        if (genre.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            genre,
-                            style: GoogleFonts.outfit(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 4),
-                        Text(
-                          summary.isNotEmpty
-                              ? summary
-                              : 'Discover and read this captivating story exclusively on Writco.',
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.ebGaramond(
-                            color: Colors.black54,
-                            fontSize: 11,
-                            height: 1.15,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Divider
-              Container(
-                height: 1,
-                color: Colors.black.withOpacity(0.06),
-              ),
-              const SizedBox(height: 8),
-
-              // 3. Stats row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  buildStatItem(Icons.menu_book_rounded, '$totalChapters Chapters'),
-                  buildStatDivider(),
-                  buildStatItem(Icons.remove_red_eye_rounded, '$totalReads Reads'),
-                  buildStatDivider(),
-                  buildStatItem(Icons.star_rounded, '${rating.toStringAsFixed(1)} stars'),
-                ],
-              ),
-            ],
-          ),
-        );
       case OverlayType.profileCard:
         final data = overlay.cardData ?? {};
         final userId = data['userId']?.toString() ?? '';
@@ -2904,7 +2637,7 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              'Nimble',
+              'Share',
               style: GoogleFonts.outfit(
                 color: Colors.black,
                 fontWeight: FontWeight.w900,
@@ -2981,15 +2714,6 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
                               crossAxisSpacing: 14,
                               childAspectRatio: 1.05,
                               children: [
-                                _stickerOption(
-                                  icon: Icons.bookmark_rounded,
-                                  label: 'Book',
-                                   color: const Color(0xFFFF5C2A),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    _openSearchSticker(isBook: true);
-                                  },
-                                ),
                                 _stickerOption(
                                   icon: Icons.person_rounded,
                                   label: 'Profile',
@@ -3850,7 +3574,6 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
   }
 
   void _openSearchSticker({
-    bool isBook = false,
     bool isProfile = false,
     bool isMention = false,
   }) {
@@ -3873,14 +3596,8 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
               Future.microtask(() async {
                 try {
                   List<Map<String, dynamic>> results = [];
-                  if (isBook) {
-                    if (widget.onGetInitialBooks != null) {
-                      results = await widget.onGetInitialBooks!();
-                    }
-                  } else {
-                    if (widget.onGetInitialProfiles != null) {
-                      results = await widget.onGetInitialProfiles!();
-                    }
+                  if (widget.onGetInitialProfiles != null) {
+                    results = await widget.onGetInitialProfiles!();
                   }
                   if (context.mounted) {
                     setModalState(() {
@@ -3897,14 +3614,11 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
             }
 
             void runSearch(String queryStr) async {
+              if (queryStr.trim().isEmpty) return;
               setModalState(() => searching = true);
               List<Map<String, dynamic>> results = [];
               try {
-                if (isBook) {
-                  if (widget.onSearchBooks != null) {
-                    results = await widget.onSearchBooks!(queryStr);
-                  }
-                } else if (isProfile) {
+                if (isProfile) {
                   if (widget.onSearchProfiles != null) {
                     results = await widget.onSearchProfiles!(queryStr);
                   }
@@ -3938,11 +3652,9 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
                   autofocus: true,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    hintText: isBook
-                        ? 'Search books...'
-                        : isProfile
-                            ? 'Search profiles...'
-                            : 'Search username to mention...',
+                    hintText: isProfile
+                        ? 'Search profiles...'
+                        : 'Search username to mention...',
                     hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
                     border: InputBorder.none,
                     filled: false,
@@ -3976,138 +3688,69 @@ class _StoryCreatorScreenState extends State<StoryCreatorScreen> {
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final item = items[index];
-                            if (isBook) {
-                              final coverUrl = item['coverUrl'] as String? ?? '';
-                              final title = item['title'] as String? ?? '';
-                              final author = item['author'] as String? ?? '';
-                              final id = item['id'] as String? ?? '';
-                              return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.05),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                            final name = item['name'] as String? ?? '';
+                            final username = item['username'] as String? ?? '';
+                            final avatarUrl = item['avatarUrl'] as String? ?? '';
+                            final mysqlId = item['mysqlId']?.toString() ?? '';
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                leading: CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.white12,
+                                  backgroundImage: avatarUrl.isNotEmpty
+                                      ? CachedNetworkImageProvider(ImageHelper.cleanLocalPath(avatarUrl))
+                                      : null,
+                                  child: avatarUrl.isEmpty
+                                      ? Text(name.isNotEmpty ? name[0] : 'U', style: GoogleFonts.poppins(color: Colors.white70))
+                                      : null,
                                 ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  leading: coverUrl.isNotEmpty
-                                      ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(6),
-                                          child: CachedNetworkImage(
-                                            imageUrl: ImageHelper.cleanLocalPath(coverUrl),
-                                            width: 45,
-                                            height: 60,
-                                            fit: BoxFit.cover,
-                                            memCacheWidth: 200,
-                                            placeholder: (context, url) => Container(width: 45, height: 60, color: Colors.white12),
-                                            errorWidget: (context, url, error) => Container(width: 45, height: 60, color: Colors.white12, child: const Icon(Icons.book, color: Colors.white38)),
-                                          ),
-                                        )
-                                      : Container(width: 45, height: 60, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(6))),
-                                  title: Text(title, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
-                                  subtitle: Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.person_outline, size: 12, color: Colors.white.withOpacity(0.6)),
-                                        const SizedBox(width: 4),
-                                        Expanded(child: Text(author, style: GoogleFonts.outfit(color: Colors.white.withOpacity(0.7), fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                                      ],
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    final cardData = {
-                                      'bookId': id,
-                                      'bookTitle': title,
-                                      'bookCoverUrl': coverUrl,
-                                      'bookGenre': item['genre'] ?? '',
-                                      'bookDescription': item['description'] ?? '',
-                                      'authorName': author,
-                                      'authorAvatarUrl': item['authorAvatarUrl'] ?? '',
-                                      'authorIsVerified': item['authorIsVerified'] ?? false,
-                                      'totalReads': item['totalReads'] ?? 0,
-                                      'formattedTotalReads': item['formattedTotalReads'] ?? '0',
-                                      'rating': item['rating'] ?? 0.0,
-                                      'totalChapters': item['effectiveTotalChapters'] ?? 0,
-                                    };
-                                    setState(() {
+                                title: Text(name, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+                                subtitle: Text('@$username', style: GoogleFonts.outfit(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  setState(() {
+                                    if (isMention) {
                                       _overlays.add(StoryOverlay(
-                                        id: 'book_${DateTime.now().millisecondsSinceEpoch}',
-                                        type: OverlayType.bookCard,
+                                        id: 'mention_${DateTime.now().millisecondsSinceEpoch}',
+                                        type: OverlayType.mention,
                                         position: _getCanvasCenter(),
-                                        cardData: cardData,
+                                        text: '@$username',
+                                        cardData: {
+                                          'userId': mysqlId,
+                                          'username': username,
+                                        },
                                       ));
-                                    });
-                                    _extractColorsFromBookData(cardData);
-                                  },
-                                ),
-                              );
-                            } else {
-                              final name = item['name'] as String? ?? '';
-                              final username = item['username'] as String? ?? '';
-                              final avatarUrl = item['avatarUrl'] as String? ?? '';
-                              final mysqlId = item['mysqlId']?.toString() ?? '';
-                              return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.05),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                                  leading: CircleAvatar(
-                                    radius: 20,
-                                    backgroundColor: Colors.white12,
-                                    backgroundImage: avatarUrl.isNotEmpty
-                                        ? CachedNetworkImageProvider(ImageHelper.cleanLocalPath(avatarUrl))
-                                        : null,
-                                    child: avatarUrl.isEmpty
-                                        ? Text(name.isNotEmpty ? name[0] : 'U', style: GoogleFonts.poppins(color: Colors.white70))
-                                        : null,
-                                  ),
-                                  title: Text(name, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
-                                  subtitle: Text('@$username', style: GoogleFonts.outfit(color: Colors.white.withOpacity(0.7), fontSize: 13)),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    setState(() {
-                                      if (isMention) {
-                                        _overlays.add(StoryOverlay(
-                                          id: 'mention_${DateTime.now().millisecondsSinceEpoch}',
-                                          type: OverlayType.mention,
-                                          position: _getCanvasCenter(),
-                                          text: '@$username',
-                                          cardData: {
-                                            'userId': mysqlId,
-                                            'username': username,
-                                          },
-                                        ));
-                                      } else {
-                                        _overlays.add(StoryOverlay(
-                                          id: 'profile_${DateTime.now().millisecondsSinceEpoch}',
-                                          type: OverlayType.profileCard,
-                                          position: _getCanvasCenter(),
-                                          cardData: {
-                                            'userId': mysqlId,
-                                            'userName': name,
-                                            'userUsername': username,
-                                            'userAvatar': avatarUrl,
-                                            'bio': item['bio'] ?? '',
-                                            'followersCount': item['followersCount'] ?? 0,
-                                            'followingCount': item['followingCount'] ?? 0,
-                                            'currentStreak': item['currentStreak'] ?? 0,
-                                            'longestStreak': item['longestStreak'] ?? 0,
-                                            'verifiedUser': item['verifiedUser'] ?? false,
-                                            'isFollowing': item['isFollowing'] ?? false,
-                                          },
-                                        ));
-                                      }
-                                    });
-                                  },
-                                ),
-                              );
-                            }
+                                    } else {
+                                      _overlays.add(StoryOverlay(
+                                        id: 'profile_${DateTime.now().millisecondsSinceEpoch}',
+                                        type: OverlayType.profileCard,
+                                        position: _getCanvasCenter(),
+                                        cardData: {
+                                          'userId': mysqlId,
+                                          'userName': name,
+                                          'userUsername': username,
+                                          'userAvatar': avatarUrl,
+                                          'bio': item['bio'] ?? '',
+                                          'followersCount': item['followersCount'] ?? 0,
+                                          'followingCount': item['followingCount'] ?? 0,
+                                          'currentStreak': item['currentStreak'] ?? 0,
+                                          'longestStreak': item['longestStreak'] ?? 0,
+                                          'verifiedUser': item['verifiedUser'] ?? false,
+                                          'isFollowing': item['isFollowing'] ?? false,
+                                        },
+                                      ));
+                                    }
+                                  });
+                                },
+                              ),
+                            );
                           },
                         ),
             );

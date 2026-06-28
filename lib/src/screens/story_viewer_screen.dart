@@ -49,7 +49,6 @@ class StoryViewerScreen extends StatefulWidget {
   final bool showActivityInitially;
   final String ownUserId;
   final dynamic Function(String userId)? onUserTap;
-  final dynamic Function(String bookId)? onBookTap;
   final dynamic Function(String storyId, String category, String message)? onReportStory;
   final String Function(StoryPost story, StoryGroup group)? onBuildShareText;
 
@@ -61,7 +60,6 @@ class StoryViewerScreen extends StatefulWidget {
     this.showActivityInitially = false,
     required this.ownUserId,
     this.onUserTap,
-    this.onBookTap,
     this.onReportStory,
     this.onBuildShareText,
   });
@@ -114,31 +112,12 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
         }
       }
       
-      // 2. Precache book card covers if card_book type
-      if (nimble.type == 'card_book') {
-        final data = nimble.data ?? {};
-        final cover = (data['bookCoverUrl'] as String?) ?? '';
-        final sanitizedCover = ImageHelper.cleanLocalPath(cover);
-        if (sanitizedCover.isNotEmpty) {
-          _precachedGroupNimbleIds.add(nimble.id);
-          precacheImage(CachedNetworkImageProvider(sanitizedCover), context);
-        }
-      }
-
-      // 3. Precache book cover images in stickers
+      // 2. Precache images in stickers
       final rawOverlays = nimble.data?['overlays'];
       if (rawOverlays is List) {
         for (final raw in rawOverlays) {
           if (raw is Map) {
-            final type = raw['type'] as String?;
-            final cardData = raw['cardData'] as Map?;
-            if (type == 'bookCard' && cardData != null) {
-              final bookId = cardData['bookId']?.toString() ?? '';
-              final coverUrl = ImageHelper.cleanLocalPath((cardData['bookCoverUrl'] as String?) ?? '');
-              if (coverUrl.isNotEmpty) {
-                precacheImage(CachedNetworkImageProvider(coverUrl), context);
-              }
-            }
+            // Feel free to add other media pre-caching for stickers here if needed
           }
         }
       }
@@ -217,7 +196,6 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
             onClose: _closeViewer,
             ownUserId: widget.ownUserId,
             onUserTap: widget.onUserTap,
-            onBookTap: widget.onBookTap,
             onReportStory: widget.onReportStory,
             onBuildShareText: widget.onBuildShareText,
           );
@@ -254,7 +232,6 @@ class StoryPlayer extends StatefulWidget {
   final VoidCallback onClose;
   final String ownUserId;
   final dynamic Function(String userId)? onUserTap;
-  final dynamic Function(String bookId)? onBookTap;
   final dynamic Function(String storyId, String category, String message)? onReportStory;
   final String Function(StoryPost story, StoryGroup group)? onBuildShareText;
 
@@ -268,7 +245,6 @@ class StoryPlayer extends StatefulWidget {
     required this.onClose,
     required this.ownUserId,
     this.onUserTap,
-    this.onBookTap,
     this.onReportStory,
     this.onBuildShareText,
     this.initialIndex = 0,
@@ -349,26 +325,7 @@ class _StoryPlayerState extends State<StoryPlayer>
           }
         }
 
-        // 2. Precache book cover images in stickers for instant loading
-        final rawOverlays = nimble.data?['overlays'];
-        if (rawOverlays is List) {
-          for (final raw in rawOverlays) {
-            if (raw is Map) {
-              final type = raw['type'] as String?;
-              final cardData = raw['cardData'] as Map?;
-              if (type == 'bookCard' && cardData != null) {
-                final bookId = cardData['bookId']?.toString() ?? '';
-                final storyController = context.read<StoryController>();
-                final bookCache = storyController.getCachedBook(bookId);
-                final rawUrl = bookCache?['coverUrl'] ?? (cardData['bookCoverUrl'] as String?) ?? '';
-                final coverUrl = ImageHelper.cleanLocalPath(rawUrl);
-                if (coverUrl.isNotEmpty) {
-                  precacheImage(CachedNetworkImageProvider(coverUrl), context);
-                }
-              }
-            }
-          }
-        }
+
       }
 
       // 3. Pre-fetch viewer activity for instant sheet loading (own nimbles only)
@@ -727,8 +684,6 @@ class _StoryPlayerState extends State<StoryPlayer>
         return _buildImageStory(nimble);
       case 'text':
         return _buildTextStory(nimble);
-      case 'card_book':
-        return _buildBookCardStory(nimble);
       case 'card_profile':
         return _buildProfileCardStory(nimble);
       default:
@@ -817,85 +772,6 @@ class _StoryPlayerState extends State<StoryPlayer>
     );
   }
 
-  Widget _buildBookCardStory(StoryPost nimble) {
-    final data = nimble.data ?? {};
-    final title  = (data['bookTitle'] as String?) ?? '';
-    final cover  = (data['bookCoverUrl'] as String?) ?? '';
-    final genre  = (data['bookGenre'] as String?) ?? '';
-
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Center(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 32),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.black.withOpacity(0.05)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (cover.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: cover,
-                    width: 140,
-                    height: 190,
-                    fit: BoxFit.cover,
-                    fadeInDuration: const Duration(milliseconds: 50),
-                    fadeOutDuration: const Duration(milliseconds: 50),
-                    placeholder: (context, url) => Container(
-                      width: 140,
-                      height: 190,
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.grey)),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      width: 140,
-                      height: 190,
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.book, color: Colors.grey, size: 40),
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black87,
-                ),
-              ),
-              if (genre.isNotEmpty) ...[
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(genre, style: GoogleFonts.outfit(fontSize: 12, color: Colors.black54)),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildProfileCardStory(StoryPost nimble) {
     final data     = nimble.data ?? {};
@@ -1104,8 +980,6 @@ class _StoryPlayerState extends State<StoryPlayer>
                 ),
               ),
             );
-          } else if (type == 'bookCard') {
-            visualCard = _buildBookCardSticker(cardData);
           } else if (type == 'profileCard') {
             visualCard = _buildProfileCardSticker(cardData);
           } else if (type == 'link') {
@@ -1185,18 +1059,6 @@ class _StoryPlayerState extends State<StoryPlayer>
               } else {
                 pillChild = const SizedBox.shrink();
               }
-            } else if (type == 'bookCard') {
-              final bookId = (cardData['bookId'] ?? cardData['id'])?.toString();
-              if (bookId != null) {
-                pillChild = _OverlayTapZone(
-                  label: 'Read Book',
-                  icon: Icons.menu_book_rounded,
-                  color: const Color(0xFFD97706),
-                  onTap: () => _openBook(bookId),
-                );
-              } else {
-                pillChild = const SizedBox.shrink();
-              }
             } else if (type == 'link') {
               final url = (cardData['linkUrl'] as String?) ?? o['text'] as String?;
               if (url != null && url.isNotEmpty) {
@@ -1269,20 +1131,6 @@ class _StoryPlayerState extends State<StoryPlayer>
         );
       },
     );
-  }
-
-  void _openBook(String bookId) {
-    if (widget.onBookTap != null) {
-      _pauseStory();
-      final res = widget.onBookTap!(bookId);
-      if (res is Future) {
-        res.then((_) => _resumeStory());
-      } else {
-        _resumeStory();
-      }
-    } else {
-      debugPrint("onBookTap is not configured.");
-    }
   }
 
   void _openUrl(String url) async {
@@ -1899,234 +1747,6 @@ class _StoryPlayerState extends State<StoryPlayer>
         const SizedBox(height: 3),
         Text(label, style: GoogleFonts.outfit(color: Colors.grey, fontSize: 9, fontWeight: FontWeight.w600, letterSpacing: 1)),
       ],
-    );
-  }
-
-  Widget _buildBookCardSticker(Map<String, dynamic> data) {
-    final bookId = data['bookId']?.toString() ?? '';
-    final storyController = context.read<StoryController>();
-    
-    if (bookId.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        storyController.fetchBookProfile(bookId);
-      });
-    }
-    
-    final bookCache = storyController.getCachedBook(bookId);
-
-    final title = bookCache?['title'] ?? (data['bookTitle'] as String?) ?? 'Untitled';
-    final cover = ImageHelper.cleanLocalPath(bookCache?['coverUrl'] ?? (data['bookCoverUrl'] as String?) ?? '');
-    final genre = bookCache?['genre'] ?? (data['bookGenre'] as String?) ?? '';
-    final summary = bookCache?['description'] ?? (data['bookDescription'] as String?) ?? (data['description'] as String?) ?? '';
-    final authorName = bookCache?['author'] ?? (data['authorName'] as String?) ?? (data['userName'] as String?) ?? 'Author';
-    final authorAvatarUrl = ImageHelper.cleanLocalPath(bookCache?['authorAvatarUrl'] ?? (data['authorAvatarUrl'] as String?) ?? (data['userAvatarUrl'] as String?) ?? '');
-    final authorIsVerified = bookCache?['authorIsVerified'] == true || data['authorIsVerified'] == true || data['userIsVerified'] == true;
-    
-    final totalReads = bookCache?['formattedTotalReads'] ?? (data['formattedTotalReads'] as String?) ?? (data['totalReads']?.toString()) ?? '65';
-    final totalChapters = bookCache?['effectiveTotalChapters'] ?? int.tryParse(data['totalChapters']?.toString() ?? '') ?? 13;
-    final rating = bookCache?['rating'] ?? double.tryParse(data['rating']?.toString() ?? '') ?? 5.0;
-
-    Widget buildStatItem(IconData icon, String value) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: Colors.grey[500]),
-          const SizedBox(width: 4),
-          Text(
-            value,
-            style: GoogleFonts.outfit(
-              color: Colors.grey[600],
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      );
-    }
-
-    Widget buildStatDivider() {
-      return Container(
-        width: 1,
-        height: 12,
-        color: Colors.black.withOpacity(0.06),
-      );
-    }
-
-    return Container(
-      width: 290,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.black.withOpacity(0.05),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 12,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: authorAvatarUrl.isNotEmpty ? NetworkImage(authorAvatarUrl) : null,
-                child: authorAvatarUrl.isEmpty
-                    ? Text(
-                        authorName.isNotEmpty ? authorName[0].toUpperCase() : 'U',
-                        style: GoogleFonts.outfit(
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        authorName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                    if (authorIsVerified) ...[
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.verified,
-                        color: Colors.green,
-                        size: 13,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: cover.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: cover,
-                        width: 60,
-                        height: 85,
-                        fit: BoxFit.cover,
-                        fadeInDuration: const Duration(milliseconds: 50),
-                        fadeOutDuration: const Duration(milliseconds: 50),
-                        placeholder: (context, url) => Container(
-                          width: 60,
-                          height: 85,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.grey)),
-                            ),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          width: 60,
-                          height: 85,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.book, color: Colors.grey, size: 24),
-                        ),
-                      )
-                    : Container(
-                        width: 60,
-                        height: 85,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
-                          ),
-                        ),
-                        child: const Icon(Icons.book, color: Colors.white70, size: 24),
-                      ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                    if (genre.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        genre,
-                        style: GoogleFonts.outfit(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 4),
-                    Text(
-                      summary.isNotEmpty
-                          ? summary
-                          : 'Discover and read this captivating story exclusively on Writco.',
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.ebGaramond(
-                        color: Colors.black54,
-                        fontSize: 11,
-                        height: 1.15,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 1,
-            color: Colors.black.withOpacity(0.06),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              buildStatItem(Icons.menu_book_rounded, '$totalChapters Chapters'),
-              buildStatDivider(),
-              buildStatItem(Icons.remove_red_eye_rounded, '$totalReads Reads'),
-              buildStatDivider(),
-              buildStatItem(Icons.star_rounded, '${rating.toStringAsFixed(1)} stars'),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
@@ -3043,7 +2663,7 @@ class _AnswerDialogContentState extends State<_AnswerDialogContent> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Center(
-                                    child: Icon(Icons.book_rounded, color: Colors.white, size: 20),
+                                    child: Icon(Icons.question_answer_rounded, color: Colors.white, size: 20),
                                   ),
                                 ),
                                 const SizedBox(height: 10),

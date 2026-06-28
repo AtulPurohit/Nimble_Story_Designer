@@ -11,13 +11,12 @@
 /// - `'text'`         — text-only canvas story
 /// - `'image'`        — image background story
 /// - `'paint'`        — freehand painted story
-/// - `'card_book'`    — book/content card story
 /// - `'card_profile'` — profile card story
 class StoryPost {
   final String id;
   final String userId;
 
-  /// One of: 'text' | 'image' | 'paint' | 'card_book' | 'card_profile'
+  /// One of: 'text' | 'image' | 'paint' | 'card_profile'
   final String type;
 
   /// Full CDN URL to the story image (null for text/card types)

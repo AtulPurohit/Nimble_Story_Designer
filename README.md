@@ -1,47 +1,100 @@
-# nimble_story_designer
+# Nimble Story Designer
 
-A fully-featured, backend-agnostic Flutter package for 24-hour Instagram-style disappearing stories. Includes a story viewer with gestures, a full-screen story creator/canvas (text, paint, images, sticker overlays, polls, Q&As, countdowns, emojis), animated story row, emoji reactions, and more.
+[![pub package](https://img.shields.io/pub/v/nimble_story_designer.svg?logo=dart&logoColor=00C2FF&style=flat-square)](https://pub.dev/packages/nimble_story_designer)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Flutter](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-blue.svg?logo=flutter&style=flat-square)](https://flutter.dev)
+
+A fully-featured, premium, and backend-agnostic Flutter package for Instagram-style disappearing stories. It includes an interactive story viewer with gestures, a highly customizable story creator/canvas (with text styles, freehand drawing, stickers, polls, Q&As, countdowns), animated story rows, emoji reactions with confetti, and a detailed viewers sheet.
 
 ---
 
-## Features
+## 📸 Demo
 
-- **Story Row & Avatar**: Beautiful animated story avatars with customizable gradients, border styles, and unread states.
-- **Full-Screen Viewer**:
-  - Instagram-style tap-left/tap-right to navigate.
-  - Hold-to-pause gestures.
-  - 3D Cube transition animations between user groups.
-  - Emoji reactions bar with custom emojis and confetti explosions.
-  - Viewers list sheet displaying who viewed each post and their sticker interactions (poll votes, Q&A responses).
-- **Interactive Story Creator Canvas**:
-  - **Text Tool**: Multiple fonts, sizes, alignments, colors, and translucent background styles.
-  - **Paint Tool**: Freehand drawing with adjustable brush size and color.
-  - **Stickers & Emojis**: Draggable, resizable, and rotatable stickers.
+> [!TIP]
+> Add your screenshots or GIFs here to make your repository stand out! 
+> You can place your demo media in a `screenshots/` directory.
+
+<p align="center">
+  <img src="screenshots/creator_demo.gif" width="250" alt="Story Creator Demo" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="screenshots/viewer_demo.gif" width="250" alt="Story Viewer Demo" />
+</p>
+
+---
+
+## ✨ Features
+
+- **🎨 Premium Interactive Story Creator**:
+  - **Text Tool**: Dynamic Google Fonts, size adjustment, alignment, colors, and solid/translucent background styles.
+  - **Drawing Brush**: Smooth freehand painting with adjustable brush size and color palette.
+  - **Stickers & Emojis**: Resizable, rotatable, and draggable sticker overlays.
   - **Interactive Widgets**:
-    - **Polls**: Add interactive polls with customizable options.
-    - **Q&A**: Add question prompts that viewers can reply to.
-    - **Countdowns**: Add countdown timers.
-    - **Mentions & Profiles**: Mention users or attach profile cards.
-    - **Book Cards**: Attach rich book information (covers, ratings, genres, description).
-- **Backend-Agnostic**: All search sheets (for books, profiles, users) use callback functions so you can plug in any backend API or local database.
+    - **Polls**: Add interactive polls with custom options.
+    - **Q&As**: Add question prompts that viewers can reply to.
+    - **Countdowns**: Add real-time countdown timers.
+    - **Profile Cards & Mentions**: Attach interactive profile cards or mention other users.
+- **👁️ Full-Screen Story Viewer**:
+  - **Gestures**: Tap left/right to navigate, hold to pause.
+  - **3D Transition**: Smooth 3D Cube rotation transition between user groups.
+  - **Reactions**: Quick emoji reaction bar with confetti explosion effects.
+  - **Viewers Sheet**: Expandable sheet showing view counts, viewer profiles, poll responses, and Q&A answers.
+- **🔌 Backend-Agnostic**: Simple callbacks for search queries (users, profiles) and story uploads so it plugs directly into any API.
 
 ---
 
-## Installation
+## 📦 Installation
 
-Add the package to your `pubspec.yaml`:
+Add the package to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
   nimble_story_designer: ^1.0.0
 ```
 
+And run:
+```bash
+flutter pub get
+```
+
 ---
 
-## Usage
+## ⚙️ Platform Setup
+
+### 🤖 Android
+
+Add the following permissions to your `android/app/src/main/AndroidManifest.xml` file:
+
+```xml
+<!-- Internet Permission -->
+<uses-permission android:name="android.permission.INTERNET" />
+
+<!-- Media/Storage Permissions -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="31" />
+<uses-permission android:name="android.permission.VIBRATE" />
+
+<!-- Required if targeting Android 33 and above -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+```
+
+### 🍏 iOS
+
+Add the following keys to your `ios/Runner/Info.plist` file:
+
+```xml
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to your photo library to let you select and upload images for your stories.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>We need permission to save created stories to your photo library.</string>
+```
+
+---
+
+## 🚀 Usage
 
 ### 1. Story Row Widget
-Display a horizontal list of user story groups:
+Display a horizontal list of user story avatars with animated unread gradients:
 
 ```dart
 StoryRow(
@@ -54,7 +107,7 @@ StoryRow(
 ```
 
 ### 2. Story Viewer Screen
-Open the interactive full-screen viewer:
+Open the full-screen interactive story player:
 
 ```dart
 Navigator.push(
@@ -65,13 +118,13 @@ Navigator.push(
       initialGroupIndex: initialIndex,
       ownUserId: 'current_user_id',
       onUserTap: (userId) {
-        // Handle user profile tap
-      },
-      onBookTap: (bookId) {
-        // Handle book card tap
+        // Handle user profile tap inside stories
       },
       onReportStory: (storyId, category, message) {
-        // Handle story report
+        // Handle story reporting
+      },
+      onBuildShareText: (story, group) {
+        return "Check out ${group.userName}'s story on Writco!";
       },
     ),
   ),
@@ -79,7 +132,7 @@ Navigator.push(
 ```
 
 ### 3. Story Creator Screen
-Open the story creation canvas:
+Launch the story editor canvas to create and share new stories:
 
 ```dart
 Navigator.push(
@@ -91,22 +144,23 @@ Navigator.push(
       ownUserUsername: 'atulpurohit',
       ownUserAvatar: 'https://example.com/avatar.jpg',
       isPremium: true,
-      onSave: (File file, List<Map<String, dynamic>> overlays) async {
-        // Upload the generated story file and save metadata
-      },
-      onSearchBooks: (query) async {
-        // Fetch books from your API
+      onSearchProfiles: (query) async {
+        // Fetch profiles from your backend API
         return [
           {
-            'id': '1',
-            'title': 'Example Book',
-            'author': 'Author Name',
-            'coverUrl': 'https://example.com/cover.jpg',
+            'mysqlId': '123',
+            'name': 'John Doe',
+            'username': 'johndoe',
+            'avatarUrl': 'https://example.com/avatar.jpg',
           }
         ];
       },
-      onSearchProfiles: (query) async {
-        // Fetch profiles from your API
+      onSearchUsers: (query) async {
+        // Fetch users to mention
+        return [];
+      },
+      onGetInitialProfiles: () async {
+        // Load initial suggested profiles
         return [];
       },
     ),
@@ -116,6 +170,6 @@ Navigator.push(
 
 ---
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

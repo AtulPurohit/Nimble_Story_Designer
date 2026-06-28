@@ -22,7 +22,6 @@ typedef StoryViewersCallback = Future<List<StoryViewer>> Function(String storyId
 typedef StoryGifFetcher = Future<List<StoryGif>> Function();
 typedef StoryStickerFetcher = Future<List<String>> Function();
 typedef StoryUserProfileFetcher = Future<Map<String, dynamic>?> Function(String userId);
-typedef StoryBookProfileFetcher = Future<Map<String, dynamic>?> Function(String bookId);
 typedef StoryReportCallback = Future<bool> Function(String storyId, String category, String message);
 
 // ─── Supporting data classes ──────────────────────────────────────────────────
@@ -107,7 +106,6 @@ class StoryController extends ChangeNotifier {
   final StoryGifFetcher? onFetchGifs;
   final StoryStickerFetcher? onFetchStickers;
   final StoryUserProfileFetcher? onFetchUserProfile;
-  final StoryBookProfileFetcher? onFetchBookProfile;
   final StoryReportCallback? onSubmitReport;
 
   StoryController({
@@ -123,7 +121,6 @@ class StoryController extends ChangeNotifier {
     this.onFetchGifs,
     this.onFetchStickers,
     this.onFetchUserProfile,
-    this.onFetchBookProfile,
     this.onSubmitReport,
   });
 
@@ -139,9 +136,7 @@ class StoryController extends ChangeNotifier {
   bool _isLoadingStickers = false;
   String? _error;
 
-  // Cache stores for dynamic profile and book info loaded inside widgets
   final Map<String, Map<String, dynamic>> _userProfileCache = {};
-  final Map<String, Map<String, dynamic>> _bookProfileCache = {};
 
   // ── Getters ─────────────────────────────────────────────────────────────────
   List<StoryGroup> get feed => _feed;
@@ -381,9 +376,8 @@ class StoryController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Profile / Book details lazy fetchers ──────────────────────────────────────
+  // ── Profile details lazy fetchers ──────────────────────────────────────
   Map<String, dynamic>? getCachedProfile(String userId) => _userProfileCache[userId];
-  Map<String, dynamic>? getCachedBook(String bookId) => _bookProfileCache[bookId];
 
   Future<void> fetchUserProfile(String userId) async {
     if (onFetchUserProfile == null || _userProfileCache.containsKey(userId)) return;
@@ -395,19 +389,6 @@ class StoryController extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('[StoryController] fetchUserProfile error: $e');
-    }
-  }
-
-  Future<void> fetchBookProfile(String bookId) async {
-    if (onFetchBookProfile == null || _bookProfileCache.containsKey(bookId)) return;
-    try {
-      final book = await onFetchBookProfile!(bookId);
-      if (book != null) {
-        _bookProfileCache[bookId] = book;
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('[StoryController] fetchBookProfile error: $e');
     }
   }
 }
