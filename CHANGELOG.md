@@ -1,3 +1,7 @@
+## 1.0.6
+
+* 🚀 Run direct `dart pub publish` in workflow to prevent env token forwarding issues.
+
 ## 1.0.5
 
 * 🚀 Fixed GitHub Actions tag trigger pattern to support automated publishing on pub.dev.
