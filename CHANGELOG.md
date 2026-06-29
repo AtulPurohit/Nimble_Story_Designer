@@ -1,3 +1,7 @@
+## 1.0.7
+
+* 🚀 Added official `dart-lang/setup-dart` to handle OIDC handshake token configuration for pub.dev.
+
 ## 1.0.6
 
 * 🚀 Run direct `dart pub publish` in workflow to prevent env token forwarding issues.
