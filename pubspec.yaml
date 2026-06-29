@@ -1,10 +1,8 @@
 name: nimble_story_designer
 description: >-
-  A fully-featured Flutter package for 24-hour Instagram-style disappearing
-  stories. Includes a story viewer with gestures, a full story creator/canvas
-  (text, image, paint, overlays, polls, Q&A, countdowns, stickers, emoji),
-  animated story row, emoji reactions, and more. Bring your own backend.
-version: 1.0.7
+  A fully-featured Flutter package for Instagram-style disappearing stories with
+  a 3D cube viewer, customizable canvas creator, stickers, and interactive widgets.
+version: 1.0.8
 homepage: https://github.com/AtulPurohit/Nimble_Story_Designer
 repository: https://github.com/AtulPurohit/Nimble_Story_Designer
 issue_tracker: https://github.com/AtulPurohit/Nimble_Story_Designer/issues
@@ -21,10 +19,10 @@ dependencies:
   image_picker: ^1.1.0
   image: ^4.0.0
   path_provider: ^2.1.0
-  google_fonts: ^6.1.0
-  confetti: ^0.7.0
-  font_awesome_flutter: ^10.7.0
-  share_plus: ^10.0.0
+  google_fonts: ^8.1.0
+  confetti: ^0.8.0
+  font_awesome_flutter: ^11.0.0
+  share_plus: ^13.2.0
   gal: ^2.3.0
   provider: ^6.1.0
   url_launcher: ^6.2.0

@@ -1,3 +1,10 @@
+## 1.0.8
+
+* 📝 Shortened pubspec description under 180 characters.
+* 📦 Upgraded dependencies (`confetti`, `font_awesome_flutter`, `google_fonts`, `share_plus`) to their latest major versions.
+* 📱 Created package `example` app.
+* 🧹 Fixed all remaining compiler warnings and analysis lints in `story_creator_screen.dart`.
+
 ## 1.0.7
 
 * 🚀 Added official `dart-lang/setup-dart` to handle OIDC handshake token configuration for pub.dev.

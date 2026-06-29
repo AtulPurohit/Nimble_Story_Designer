@@ -3953,12 +3953,10 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 // ── Self-contained Link Dialog Content StatefulWidget ──
 class _LinkDialogContent extends StatefulWidget {
   final StoryOverlay? overlay;
-  final VoidCallback? onCancel;
   final Function(String url, String title, String style) onSave;
 
   const _LinkDialogContent({
     this.overlay,
-    this.onCancel,
     required this.onSave,
   });
 
@@ -4012,7 +4010,7 @@ class _LinkDialogContentState extends State<_LinkDialogContent> {
               child: Row(
                 children: [
                   TextButton(
-                    onPressed: widget.onCancel ?? () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(context),
                     child: Text('Cancel', style: GoogleFonts.outfit(color: Colors.white, fontSize: 17)),
                   ),
                   const Spacer(),
@@ -4185,12 +4183,10 @@ class _LinkDialogContentState extends State<_LinkDialogContent> {
 // ── Self-contained Countdown Dialog Content StatefulWidget ──
 class _CountdownDialogContent extends StatefulWidget {
   final StoryOverlay? overlay;
-  final VoidCallback? onCancel;
   final Function(DateTime targetTime, String name, String style) onSave;
 
   const _CountdownDialogContent({
     this.overlay,
-    this.onCancel,
     required this.onSave,
   });
 
@@ -4258,7 +4254,7 @@ class _CountdownDialogContentState extends State<_CountdownDialogContent> {
               child: Row(
                 children: [
                   TextButton(
-                    onPressed: widget.onCancel ?? () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(context),
                     child: Text('Cancel', style: GoogleFonts.outfit(color: Colors.white, fontSize: 17)),
                   ),
                   const Spacer(),
