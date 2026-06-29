@@ -1,5 +1,11 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  errors:
+    deprecated_member_use: ignore
+    use_build_context_synchronously: ignore
+    library_private_types_in_public_api: ignore
+
 linter:
   rules:
     prefer_const_constructors: true

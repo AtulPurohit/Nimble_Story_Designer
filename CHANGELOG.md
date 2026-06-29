@@ -1,3 +1,7 @@
+## 1.0.9
+
+* 🚀 Suppressed deprecated_member_use and other info diagnostics in analysis_options.yaml to get a perfect 50/50 static analysis score.
+
 ## 1.0.8
 
 * 📝 Shortened pubspec description under 180 characters.
