@@ -4,7 +4,7 @@ description: >-
   stories. Includes a story viewer with gestures, a full story creator/canvas
   (text, image, paint, overlays, polls, Q&A, countdowns, stickers, emoji),
   animated story row, emoji reactions, and more. Bring your own backend.
-version: 1.0.4
+version: 1.0.5
 homepage: https://github.com/AtulPurohit/Nimble_Story_Designer
 repository: https://github.com/AtulPurohit/Nimble_Story_Designer
 issue_tracker: https://github.com/AtulPurohit/Nimble_Story_Designer/issues

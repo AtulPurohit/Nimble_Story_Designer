@@ -1,3 +1,7 @@
+## 1.0.5
+
+* 🚀 Fixed GitHub Actions tag trigger pattern to support automated publishing on pub.dev.
+
 ## 1.0.4
 
 * 🧹 Removed 6 unused imports (unused_import)
