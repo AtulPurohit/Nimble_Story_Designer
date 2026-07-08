@@ -1,3 +1,9 @@
+## 1.0.13
+
+* 🛡️ Added pub points, Flutter CI, platform, and license badges to README.md.
+* ⚙️ Setup automated Flutter CI workflow with static analysis and test validation.
+* ✅ Added unit tests for `StoryReactions` and `StoryGif` models.
+
 ## 1.0.12
 
 * 📸 Reordered Demo section in README.md to display the GIF animations first.

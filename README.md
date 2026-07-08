@@ -1,8 +1,6 @@
 # Nimble Story Designer
 
-[![pub package](https://img.shields.io/pub/v/nimble_story_designer.svg?logo=dart&logoColor=00C2FF&style=flat-square)](https://pub.dev/packages/nimble_story_designer)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Flutter](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-blue.svg?logo=flutter&style=flat-square)](https://flutter.dev)
+[![pub package](https://img.shields.io/pub/v/nimble_story_designer.svg?style=flat-square)](https://pub.dev/packages/nimble_story_designer) [![pub points](https://img.shields.io/pub/points/nimble_story_designer?style=flat-square)](https://pub.dev/packages/nimble_story_designer) [![Flutter CI](https://github.com/AtulPurohit/Nimble_Story_Designer/actions/workflows/flutter_ci.yml/badge.svg)](https://github.com/AtulPurohit/Nimble_Story_Designer/actions/workflows/flutter_ci.yml) [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Web-orange.svg?logo=flutter&style=flat-square)](https://pub.dev/packages/nimble_story_designer) [![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 A fully-featured, premium, and backend-agnostic Flutter package for Instagram-style disappearing stories. It includes an interactive story viewer with gestures, a highly customizable story creator/canvas (with text styles, freehand drawing, stickers, polls, Q&As, countdowns), animated story rows, emoji reactions with confetti, and a detailed viewers sheet.
 
