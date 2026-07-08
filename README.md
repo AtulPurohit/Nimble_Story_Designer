@@ -14,14 +14,14 @@ A fully-featured, premium, and backend-agnostic Flutter package for Instagram-st
 ## 📸 Demo
 
 <p align="center">
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Storito_motion1.gif" width="160" alt="Storito Motion 1" />
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Storito_motion2.gif" width="160" alt="Storito Motion 2" />
+  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Storito_motion3.gif" width="160" alt="Storito Motion 3" />
   <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_2.jpeg" width="160" alt="Nimble 2" />
   <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_3.jpeg" width="160" alt="Nimble 3" />
   <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_5.jpeg" width="160" alt="Nimble 5" />
   <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_7.jpeg" width="160" alt="Nimble 7" />
   <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Nimble_8.jpeg" width="160" alt="Nimble 8" />
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Storito_motion1.gif" width="160" alt="Storito Motion 1" />
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Storito_motion2.gif" width="160" alt="Storito Motion 2" />
-  <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/screenshoots/Storito_motion3.gif" width="160" alt="Storito Motion 3" />
 </p>
 
 ---

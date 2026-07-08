@@ -1,3 +1,7 @@
+## 1.0.12
+
+* 📸 Reordered Demo section in README.md to display the GIF animations first.
+
 ## 1.0.11
 
 * 📸 Added 3 demo GIF animations (`Storito_motion1.gif`, `Storito_motion2.gif`, `Storito_motion3.gif`) to the Demo section of README.md.
