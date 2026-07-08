@@ -7,7 +7,7 @@
 A fully-featured, premium, and backend-agnostic Flutter package for Instagram-style disappearing stories. It includes an interactive story viewer with gestures, a highly customizable story creator/canvas (with text styles, freehand drawing, stickers, polls, Q&As, countdowns), animated story rows, emoji reactions with confetti, and a detailed viewers sheet.
 
 <p align="center">
- <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/sscreenshoots/Nimble_Promo_Flutter.png" />
+ <img src="https://raw.githubusercontent.com/AtulPurohit/Nimble_Story_Designer/main/sscreenshoots/Nimble_Promo_Flutter.png" alt="Nimble Promo" />
 </p>
 ---
 
